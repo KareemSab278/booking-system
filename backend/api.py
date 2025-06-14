@@ -55,7 +55,7 @@ init_db()
 # add_test_data()
 
 
-#============================================================= GET ALL BOOKINGS
+#=============================== READ BOOKINGS ===============================
 
 @app.route('/')
 def index():
@@ -67,7 +67,7 @@ def index():
         bookings = [dict(row) for row in rows]
         return jsonify(bookings)
 
-#=============================================================
+#=============================== CREATE BOOKING ===============================
 
 @app.route('/booking', methods=['POST'])
 def create_booking():
@@ -102,23 +102,14 @@ def create_booking():
 #   "price": 200.00
 # }
 
-# this needs to handle any errors that might occur during the booking process, like duplicate email or existing phone number entries or adding a booking with an invalid date or time or price is string or invalid int (friontend will vlaidate types)
+# this needs to handle any errors (duplicate email/phone number OR invalid date/time OR price not number)
+# frontend should handle types and validation using TS and field validation
 
-#=============================================================
+#=============================== UPDATE BOOKING ===============================
 
-#=============================================================
 
-#=============================================================
 
-@app.route('/admin/delete/<int:product_id>', methods=['POST'])
-def delete_product(product_id):
-    with sqlite3.connect(DB_PATH) as conn:
-        c = conn.cursor()
-        c.execute("DELETE FROM bookings WHERE id=?", (product_id,))
-        conn.commit()
-    return redirect(url_for('admin'))
-
-#=============================================================
+#=============================== DELETE BOOKING ===============================
 
 if __name__ == '__main__':
     app.run(debug=True)
