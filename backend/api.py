@@ -32,29 +32,6 @@ def init_db():
 #apparently you use REAL for prices in sqlite3...
 init_db()
 
-
-#============================================================= TEST DATA
- 
-
-# def add_test_data():
-#     test_bookings = [
-#         ("John", "Doe", 2, 0, 1, "Deluxe", "john@example.com", "1234567890", "2025-06-20", "14:00", 200.0),
-#         ("Jane", "Smith", 2, 2, 2, "Family", "jane@example.com", "0987654321", "2025-06-21", "15:30", 350.0),
-#         ("Alice", "Brown", 1, 0, 1, "Single", "alice@example.com", "1112223333", "2025-06-22", "12:00", 120.0)
-#     ]
-#     with sqlite3.connect(DB_PATH) as conn:
-#         c = conn.cursor()
-#         c.executemany('''
-#             INSERT INTO bookings (
-#                 first_name, last_name, number_of_adults, number_of_children, number_of_rooms, 
-#                 room_type, email, phone, date, time, price
-#             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-#         ''', test_bookings)
-#         conn.commit()
-
-# add_test_data()
-
-
 #=============================== READ BOOKINGS ===============================
 
 @app.route('/')
