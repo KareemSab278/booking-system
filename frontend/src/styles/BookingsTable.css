@@ -1,0 +1,15 @@
+.container {
+  width: 100%;
+  max-width: 100%;
+  min-width: 600px;
+  margin: 0 auto;
+  overflow: hidden;
+}
+
+.tableContainer {
+  max-height: 500px;
+}
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}

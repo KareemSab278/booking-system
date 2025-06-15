@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import './styles/App.css';
-import BookingsTable from './BookingsTable.tsx';
+import BookingsTable from './components/BookingsTable.tsx';
 
 
 function App() {
