@@ -1,10 +1,14 @@
 from flask import Flask, jsonify, request, redirect, session, url_for
+from flask_cors import CORS
 import sqlite3
 import os
+
+
 
 #=============================================================
 
 app = Flask(__name__)
+CORS(app)
 app.secret_key = 'supersecretkey'
 # DB_PATH = '/mnt/data/bookings.db'
 DB_PATH = 'bookings.db'
@@ -24,8 +28,9 @@ def init_db():
                         room_type TEXT NOT NULL,
                         email TEXT NOT NULL,
                         phone TEXT NOT NULL,
-                        date TEXT NOT NULL,
-                        time TEXT NOT NULL,
+                        start_date DATE NOT NULL,
+                        end_date DATE NOT NULL,
+                        booking_time TEXT NOT NULL,
                         price REAL NOT NULL
                 )''')
         conn.commit()
@@ -54,7 +59,7 @@ def create_booking():
 
     required_fields = ['first_name', 'last_name', 'number_of_adults',
     'number_of_children', 'number_of_rooms', 'room_type',
-    'email', 'phone', 'date', 'time', 'price'] #fields that are NOT NULL in db
+    'email', 'phone', 'start_date', 'end_date', 'booking_time', 'price'] #fields that are NOT NULL in db
     #=====
     if not data:
         return jsonify({"error": "No data provided"}), 400 # check if !data
@@ -73,12 +78,12 @@ def create_booking():
         c.execute('''
             INSERT INTO bookings (
                 first_name, last_name, number_of_adults, number_of_children, 
-                number_of_rooms, room_type, email, phone, date, time, price
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                number_of_rooms, room_type, email, phone, start_date, end_date, booking_time, price
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ''', (
             data['first_name'], data['last_name'], data['number_of_adults'], 
             data['number_of_children'], data['number_of_rooms'], data['room_type'], 
-            data['email'], data['phone'], data['date'], data['time'], data['price']
+            data['email'], data['phone'], data['start_date'], data['end_date'], data['booking_time'], data['price']
         ))
         conn.commit()
     return jsonify({"status": "success"}), 201 
@@ -94,30 +99,37 @@ def update_booking(id):
     with sqlite3.connect(DB_PATH) as conn:                  #theoretically i should get all data fields from the form... my frontend SHOULD HANDLE THIS...
         c = conn.cursor()
         valid = (
-    isinstance(data.get('first_name'), str) and data['first_name'] and
-    isinstance(data.get('last_name'), str) and data['last_name'] and
-    isinstance(data.get('number_of_adults'), int) and data['number_of_adults'] >= 0 and
-    isinstance(data.get('number_of_children'), int) and data['number_of_children'] >= 0 and
-    isinstance(data.get('number_of_rooms'), int) and data['number_of_rooms'] > 0 and
-    isinstance(data.get('room_type'), str) and data['room_type'] and
-    isinstance(data.get('email'), str) and data['email'] and
-    isinstance(data.get('phone'), str) and data['phone'] and
-    isinstance(data.get('date'), str) and data['date'] and
-    isinstance(data.get('time'), str) and data['time'] and
-    (isinstance(data.get('price'), float) or isinstance(data.get('price'), int)) and data['price'] >= 0
-)
-        if not valid: 
-            return jsonify({"error": "Invalid data format"}), 400
-        else:
-            c.execute('''UPDATE bookings
-    SET first_name = ?, last_name = ?, number_of_adults = ?, number_of_children = ?,
-        number_of_rooms = ?, room_type = ?, email = ?, phone = ?, date = ?, time = ?, price = ?
-    WHERE id = ?''', (
-                data['first_name'], data['last_name'], data['number_of_adults'],            #i need to check if all fields are in correct format... maybe frontend should handle this???
-                data['number_of_children'], data['number_of_rooms'], data['room_type'], 
-                data['email'], data['phone'], data['date'], data['time'], data['price'], id
-            ))
-            conn.commit()
+        all(field in data for field in ['first_name', 'last_name', 'number_of_adults', 'number_of_children',
+                                    'number_of_rooms', 'room_type', 'email', 'phone', 'start_date', 'end_date',
+                                    'booking_time', 'price']) and
+        isinstance(data['first_name'], str) and data['first_name'] and
+        isinstance(data['last_name'], str) and data['last_name'] and
+        isinstance(data['number_of_adults'], int) and data['number_of_adults'] >= 0 and
+        isinstance(data['number_of_children'], int) and data['number_of_children'] >= 0 and
+        isinstance(data['number_of_rooms'], int) and data['number_of_rooms'] > 0 and
+        isinstance(data['room_type'], str) and data['room_type'] and
+        isinstance(data['email'], str) and data['email'] and
+        isinstance(data['phone'], str) and data['phone'] and
+        isinstance(data['start_date'], str) and data['start_date'] and
+        isinstance(data['end_date'], str) and data['end_date'] and
+        isinstance(data['booking_time'], str) and data['booking_time'] and
+        (isinstance(data['price'], (int, float))) and data['price'] >= 0
+    )
+
+    if not valid:
+        return jsonify({"error": "Invalid data format"}), 400
+    else:
+        c.execute('''
+            UPDATE bookings
+            SET first_name = ?, last_name = ?, number_of_adults = ?, number_of_children = ?,
+                number_of_rooms = ?, room_type = ?, email = ?, phone = ?, start_date = ?, end_date = ?, booking_time = ?, price = ?
+            WHERE id = ?
+        ''', (
+            data['first_name'], data['last_name'], data['number_of_adults'], data['number_of_children'],
+            data['number_of_rooms'], data['room_type'], data['email'], data['phone'],
+            data['start_date'], data['end_date'], data['booking_time'], data['price'], id
+        ))
+        conn.commit()
         return jsonify({"status": "success"}), 200 # success update
 
 #=============================== DELETE BOOKING ===============================
