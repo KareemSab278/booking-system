@@ -1,33 +1,23 @@
 import React, { useEffect, useState } from 'react';
 import '../styles/BookingsTable.css';
-import OptionsMenu from './OptionsMenu';
-import Paper from '@mui/material/Paper';
-import {
-  DataGrid,
-  GridRowModes,
-  GridActionsCellItem,
-} from '@mui/x-data-grid';
+import {DataGrid} from '@mui/x-data-grid';
+import type {GridColDef, GridRowId, GridRowModel} from '@mui/x-data-grid';
 
-import type {
-  GridRowsProp,
-  GridRowModesModel,
-  GridColDef,
-  GridEventListener,
-  GridRowId,
-  GridRowModel,
-  GridRowEditStopReasons,
-  GridSlotProps,
-} from '@mui/x-data-grid';
+const api = 'http://127.0.0.1:5000/';
 
+//========================================= fetch bookings function =========================================
 
 const fetchBookings = async () => {
-  const response = await fetch('http://127.0.0.1:5000/');
+  const response = await fetch(api);
   if (!response.ok) throw new Error('Failed to fetch data');
   return response.json();
 };
 
+
+//========================================= update booking function =========================================
+
 const updateBooking = async (id: GridRowId, updatedRow: GridRowModel) => {
-  const response = await fetch(`http://127.0.0.1:5000/update-booking/${id}`, {
+  const response = await fetch(`${api}update-booking/${id}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -38,7 +28,7 @@ const updateBooking = async (id: GridRowId, updatedRow: GridRowModel) => {
   return response.json();
 };
 
-
+//========================================= bookings table =========================================
 
 export default function BookingsTable() {
   const [rows, setRows] = useState<any[]>([]);
@@ -58,9 +48,13 @@ export default function BookingsTable() {
       });
   }, []);
 
+//====================== handle loading, error, and empty state ======================
+
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
   if (rows.length === 0) return <div>No bookings found.</div>;
+
+//====================== render bookings table ======================
 
   const columns: GridColDef[] = [
     { field: 'id', headerName: 'Booking ID', width: 80 },
@@ -77,6 +71,8 @@ export default function BookingsTable() {
     { field: 'email', headerName: 'Email', width: 180, editable: true },
     { field: 'phone', headerName: 'Phone', width: 140, editable: true },
     ];
+
+//====================== render the DataGrid ======================
 
   return (
   <div style={{ height: '100%', width: '100%', padding: 16 }}>
@@ -97,10 +93,14 @@ export default function BookingsTable() {
           if (!newRow.id) {
             return newRow;
           }
+          //===================================
+          // to format time as HH:MM and pass it to the backend
           const now = new Date();
           const pad = (n: number) => n.toString().padStart(2, '0');
-          const currentTime = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
-          const payload = {
+          const currentTime = `${pad(now.getHours())}:${pad(now.getMinutes())}`; 
+          //===================================
+
+          const payload = { // idk why it's called "payload", but thats how the website says it...
             first_name: newRow.first_name,
             last_name: newRow.last_name,
             number_of_adults: newRow.number_of_adults,
@@ -114,13 +114,15 @@ export default function BookingsTable() {
             booking_time: currentTime,
             price: newRow.price,
           };
+          //===================================
           try {
-            await updateBooking(newRow.id, payload);
-            setRows((prevRows) => prevRows.map((row) => row.id === newRow.id ? { ...row, ...newRow } : row));
+            await updateBooking(newRow.id, payload); // can we update the booking with the new data?
+            alert('Booking updated successfully'); // if it worked, show a success message
+            setRows((prevRows) => prevRows.map((row) => row.id === newRow.id ? { ...row, ...newRow } : row)); // update state (the table) with new updated data
             return { ...newRow };
           } catch (err) {
-            alert('Failed to update booking');
-            return oldRow;
+            alert('Failed to update booking'); // you messed up like you messed it up with maisie...
+            return oldRow; // show older data
           }
         }}
       />
