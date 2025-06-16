@@ -26,6 +26,7 @@ def init_db():
                         number_of_children INTEGER NOT NULL,
                         number_of_rooms INTEGER NOT NULL,
                         room_type TEXT NOT NULL,
+                        status TEXT DEFAULT 'not paid',
                         email TEXT NOT NULL,
                         phone TEXT NOT NULL,
                         start_date DATE NOT NULL,
@@ -58,7 +59,7 @@ def create_booking():
     #============== Validation start =================
 
     required_fields = ['first_name', 'last_name', 'number_of_adults',
-    'number_of_children', 'number_of_rooms', 'room_type',
+    'number_of_children', 'number_of_rooms', 'room_type', 'status',
     'email', 'phone', 'start_date', 'end_date', 'booking_time', 'price'] #fields that are NOT NULL in db
     #=====
     if not data:
@@ -78,11 +79,11 @@ def create_booking():
         c.execute('''
             INSERT INTO bookings (
                 first_name, last_name, number_of_adults, number_of_children, 
-                number_of_rooms, room_type, email, phone, start_date, end_date, booking_time, price
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                number_of_rooms, room_type, status, email, phone, start_date, end_date, booking_time, price
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ''', (
             data['first_name'], data['last_name'], data['number_of_adults'], 
-            data['number_of_children'], data['number_of_rooms'], data['room_type'], 
+            data['number_of_children'], data['number_of_rooms'], data['room_type'], data['status'],
             data['email'], data['phone'], data['start_date'], data['end_date'], data['booking_time'], data['price']
         ))
         conn.commit()
@@ -100,7 +101,7 @@ def update_booking(id):
         c = conn.cursor()
         valid = (
         all(field in data for field in ['first_name', 'last_name', 'number_of_adults', 'number_of_children',
-                                    'number_of_rooms', 'room_type', 'email', 'phone', 'start_date', 'end_date',
+                                    'number_of_rooms', 'room_type', 'status', 'email', 'phone', 'start_date', 'end_date',
                                     'booking_time', 'price']) and
         isinstance(data['first_name'], str) and data['first_name'] and
         isinstance(data['last_name'], str) and data['last_name'] and
@@ -108,6 +109,7 @@ def update_booking(id):
         isinstance(data['number_of_children'], int) and data['number_of_children'] >= 0 and
         isinstance(data['number_of_rooms'], int) and data['number_of_rooms'] > 0 and
         isinstance(data['room_type'], str) and data['room_type'] and
+        isinstance(data['status'], str) and data['status'] and
         isinstance(data['email'], str) and data['email'] and
         isinstance(data['phone'], str) and data['phone'] and
         isinstance(data['start_date'], str) and data['start_date'] and
@@ -122,11 +124,11 @@ def update_booking(id):
         c.execute('''
             UPDATE bookings
             SET first_name = ?, last_name = ?, number_of_adults = ?, number_of_children = ?,
-                number_of_rooms = ?, room_type = ?, email = ?, phone = ?, start_date = ?, end_date = ?, booking_time = ?, price = ?
+                number_of_rooms = ?, room_type = ?, status = ?, email = ?, phone = ?, start_date = ?, end_date = ?, booking_time = ?, price = ?
             WHERE id = ?
         ''', (
             data['first_name'], data['last_name'], data['number_of_adults'], data['number_of_children'],
-            data['number_of_rooms'], data['room_type'], data['email'], data['phone'],
+            data['number_of_rooms'], data['room_type'], data['status'], data['email'], data['phone'],
             data['start_date'], data['end_date'], data['booking_time'], data['price'], id
         ))
         conn.commit()

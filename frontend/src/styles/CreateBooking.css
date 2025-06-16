@@ -1,0 +1,47 @@
+.create-booking-form {
+  max-width: 500px;
+  margin: 40px auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: #181c23;
+  padding: 32px 24px;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.2);
+}
+
+.create-booking-form .MuiFormControl-root,
+.create-booking-form .MuiTextField-root {
+  background: #23272f;
+  border-radius: 8px;
+}
+
+.create-booking-form .MuiInputBase-input,
+.create-booking-form .MuiSelect-select {
+  color: #fff;
+}
+
+.create-booking-form label,
+.create-booking-form .MuiInputLabel-root {
+  color: #b0b8c4;
+}
+
+.create-booking-form .MuiButton-root {
+  margin-top: 12px;
+}
+
+.create-booking-form .Mui-disabled {
+  opacity: 0.7;
+}
+
+.create-booking-form .MuiOutlinedInput-notchedOutline {
+  border-color: #434d5b;
+}
+
+.create-booking-form .Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: #3399ff;
+}
+
+.create-booking-form .MuiFormHelperText-root {
+  color: #ff5252;
+}

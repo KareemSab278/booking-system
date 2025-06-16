@@ -3,12 +3,6 @@ import { styled, alpha } from '@mui/material/styles';
 import Button from '@mui/material/Button';
 import type { MenuProps } from '@mui/material/Menu';
 import Menu from '@mui/material/Menu';
-import MenuItem from '@mui/material/MenuItem';
-import EditIcon from '@mui/icons-material/Edit';
-import Divider from '@mui/material/Divider';
-import ArchiveIcon from '@mui/icons-material/Archive';
-import FileCopyIcon from '@mui/icons-material/FileCopy';
-import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 
 const StyledMenu = styled((props: MenuProps) => (
@@ -31,7 +25,7 @@ const StyledMenu = styled((props: MenuProps) => (
     minWidth: 180,
     color: 'rgb(55, 65, 81)',
     boxShadow:
-      'rgb(255, 255, 255) 0px 0px 0px 0px, rgba(0, 0, 0, 0.05) 0px 0px 0px 1px, rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px',
+      'rgb(148, 148, 148) 0px 0px 0px 0px, rgba(0, 0, 0, 0.05) 0px 0px 0px 1px, rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px',
     '& .MuiMenu-list': {
       padding: '4px 0',
     },
@@ -76,7 +70,7 @@ export default function OptionsMenu() {
         onClick={handleClick}
         endIcon={<KeyboardArrowDownIcon />}
       >
-        Options
+        Room Type
       </Button>
       <StyledMenu
         id="demo-customized-menu"
@@ -89,14 +83,7 @@ export default function OptionsMenu() {
         open={open}
         onClose={handleClose}
       >
-        <MenuItem onClick={handleClose} disableRipple>
-          <EditIcon />
-          Edie
-        </MenuItem>
-        <MenuItem onClick={handleClose} disableRipple>
-          <FileCopyIcon />
-          Delete
-        </MenuItem>
+        
       </StyledMenu>
     </div>
   );
