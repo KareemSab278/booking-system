@@ -2,37 +2,23 @@ import React, { useEffect, useState } from 'react';
 import '../styles/BookingsTable.css';
 import OptionsMenu from './OptionsMenu';
 import Paper from '@mui/material/Paper';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TablePagination from '@mui/material/TablePagination';
-import TableRow from '@mui/material/TableRow';
+import {
+  DataGrid,
+  GridRowModes,
+  GridActionsCellItem,
+} from '@mui/x-data-grid';
 
-interface Column {
-  id: string;
-  label: string;
-  minWidth?: number;
-  align?: 'right' | 'left' | 'center';
-  format?: (value: any) => React.ReactNode;
-}
+import type {
+  GridRowsProp,
+  GridRowModesModel,
+  GridColDef,
+  GridEventListener,
+  GridRowId,
+  GridRowModel,
+  GridRowEditStopReasons,
+  GridSlotProps,
+} from '@mui/x-data-grid';
 
-const columns: readonly Column[] = [
-  { id: 'id', label: 'Booking ID', minWidth: 80 },
-  { id: 'first_name', label: 'First Name', minWidth: 120 },
-  { id: 'last_name', label: 'Last Name', minWidth: 120 },
-  { id: 'number_of_adults', label: 'Adults', minWidth: 80, align: 'right' },
-  { id: 'number_of_children', label: 'Children', minWidth: 80, align: 'right' },
-  { id: 'number_of_rooms', label: 'Rooms', minWidth: 80, align: 'right' },
-  { id: 'room_type', label: 'Room Type', minWidth: 120 },
-  { id: 'email', label: 'Email', minWidth: 180 },
-  { id: 'phone', label: 'Phone', minWidth: 140 },
-  { id: 'start_date', label: 'Start Date', minWidth: 110 },
-  { id: 'end_date', label: 'End Date', minWidth: 110 },
-  { id: 'price', label: 'Price', minWidth: 100, align: 'center', format: (value) => `$${value.toFixed(2)}`},
-  { id: 'options', label: 'Options', minWidth: 100, align: 'center', format: () => <OptionsMenu></OptionsMenu>}
-];
 
 const fetchBookings = async () => {
   const response = await fetch('http://127.0.0.1:5000/');
@@ -40,12 +26,25 @@ const fetchBookings = async () => {
   return response.json();
 };
 
+const updateBooking = async (id: GridRowId, updatedRow: GridRowModel) => {
+  const response = await fetch(`http://127.0.0.1:5000/update-booking/${id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(updatedRow),
+  });
+  if (!response.ok) throw new Error('Failed to update booking');
+  return response.json();
+};
+
+
+
 export default function BookingsTable() {
   const [rows, setRows] = useState<any[]>([]);
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [paginationModel, setPaginationModel] = React.useState({ page: 0, pageSize: 10 });
 
   useEffect(() => {
     fetchBookings()
@@ -63,64 +62,68 @@ export default function BookingsTable() {
   if (error) return <div>Error: {error}</div>;
   if (rows.length === 0) return <div>No bookings found.</div>;
 
-  const handleChangePage = (_: unknown, newPage: number) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setRowsPerPage(+event.target.value);
-    setPage(0);
-  };
+  const columns: GridColDef[] = [
+    { field: 'id', headerName: 'Booking ID', width: 80 },
+    { field: 'first_name', headerName: 'First Name', width: 120, editable: true },
+    { field: 'last_name', headerName: 'Last Name', width: 120, editable: true },
+    { field: 'number_of_adults', headerName: 'Adults', width: 80, editable: true, type: 'number', align: 'right', headerAlign: 'right' },
+    { field: 'number_of_children', headerName: 'Children', width: 80, editable: true, type: 'number', align: 'right', headerAlign: 'right' },
+    { field: 'number_of_rooms', headerName: 'Rooms', width: 80, editable: true, type: 'number', align: 'right', headerAlign: 'right' },
+    { field: 'room_type', headerName: 'Room Type', width: 120, editable: true },
+    { field: 'start_date', headerName: 'Start Date', width: 110, editable: true },
+    { field: 'end_date', headerName: 'End Date', width: 110, editable: true },
+    { field: 'price', headerName: 'Price', width: 100, editable: true, type: 'number', align: 'center', headerAlign: 'center',
+      valueFormatter: (params: Number) => `$${Number(params).toFixed(2)}` },
+    { field: 'email', headerName: 'Email', width: 180, editable: true },
+    { field: 'phone', headerName: 'Phone', width: 140, editable: true },
+    ];
 
   return (
-    <Paper className="container">
-      <TableContainer className="tableContainer">
-        <Table stickyHeader>
-          <TableHead>
-            <TableRow>
-              {columns.map((column) => (
-                <TableCell
-                  key={column.id}
-                  align={column.align ?? 'left'}
-                  style={{ minWidth: column.minWidth }}
-                >
-                  {column.label}
-                </TableCell>
-              ))}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {rows
-              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              .map((row, idx) => (
-                <TableRow hover key={idx}>
-                  {columns.map((column) => {
-                    const value = row[column.id];
-                    return (
-                      <TableCell key={column.id} align={column.align ?? 'left'}>
-                        {column.format
-                          ? column.format(value)
-                          : value}
-                      </TableCell>
-                      
-                    );
-                  })}
-                </TableRow>
-              ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <TablePagination
-        component="div"
-        count={rows.length}
-        page={page}
-        rowsPerPage={rowsPerPage}
-        onPageChange={handleChangePage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-        rowsPerPageOptions={[10, 25, 100]}
+  <div style={{ height: '100%', width: '100%', padding: 16 }}>
+      <DataGrid
+        rows={rows}
+        columns={columns}
+        pagination
+        paginationModel={paginationModel}
+        onPaginationModelChange={setPaginationModel}
+        pageSizeOptions={[10, 25, 100]}
+        disableRowSelectionOnClick
+        onCellEditStop={(params: any, event: any) => {
+          if (params.reason === 'cellFocusOut') {
+            event.defaultMuiPrevented = true;
+          }
+        }}
+        processRowUpdate={async (newRow, oldRow) => {
+          if (!newRow.id) {
+            return newRow;
+          }
+          const now = new Date();
+          const pad = (n: number) => n.toString().padStart(2, '0');
+          const currentTime = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+          const payload = {
+            first_name: newRow.first_name,
+            last_name: newRow.last_name,
+            number_of_adults: newRow.number_of_adults,
+            number_of_children: newRow.number_of_children,
+            number_of_rooms: newRow.number_of_rooms,
+            room_type: newRow.room_type,
+            email: newRow.email,
+            phone: newRow.phone,
+            start_date: newRow.start_date,
+            end_date: newRow.end_date,
+            booking_time: currentTime,
+            price: newRow.price,
+          };
+          try {
+            await updateBooking(newRow.id, payload);
+            setRows((prevRows) => prevRows.map((row) => row.id === newRow.id ? { ...row, ...newRow } : row));
+            return { ...newRow };
+          } catch (err) {
+            alert('Failed to update booking');
+            return oldRow;
+          }
+        }}
       />
-    </Paper>
+    </div>
   );
 }

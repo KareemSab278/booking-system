@@ -1,15 +1,40 @@
 .container {
   width: 100%;
-  max-width: 100%;
+  max-width: 200%;
   min-width: 600px;
   margin: 0 auto;
-  overflow: hidden;
+  color: #fff;
 }
 
-.tableContainer {
-  max-height: 500px;
+.MuiDataGrid-root {
+  background-color: #15181d !important;
+  color: #fff !important;
 }
-.table {
-  width: 100%;
-  border-collapse: collapse;
+
+.MuiDataGrid-columnHeaders, .MuiDataGrid-columnHeader, .MuiDataGrid-columnHeaderTitle {
+  background-color: #23272f !important;
+  color: #fff !important;
+}
+
+.MuiDataGrid-footerContainer {
+  background-color: #23272f !important;
+  color: #fff !important;
+}
+
+.MuiDataGrid-cell {
+  color: #fff !important;
+}
+
+.MuiDataGrid-row:hover {
+  background-color: #23272f !important;
+  color: #fff !important;
+}
+
+.MuiTablePagination-toolbar,
+.MuiTablePagination-selectLabel,
+.MuiTablePagination-displayedRows,
+.MuiTablePagination-input,
+.MuiTablePagination-select,
+.MuiSelect-select {
+  color: #fff !important;
 }
