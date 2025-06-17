@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import '../styles/BookingsTable.css';
-import {DataGrid} from '@mui/x-data-grid';
-import type {GridColDef, GridRowId, GridRowModel} from '@mui/x-data-grid';
+import { DataGrid } from '@mui/x-data-grid';
+import type { GridColDef, GridRowId, GridRowModel } from '@mui/x-data-grid';
 import { calculatePrice } from '../utils/price';
 
 //========================================= API endpoint =========================================
@@ -16,8 +16,6 @@ export const fetchBookings = async () => {
   return response.json();
 };
 
-
-
 //========================================= update booking function =========================================
 
 const updateBooking = async (id: GridRowId, updatedRow: GridRowModel) => {
@@ -31,6 +29,16 @@ const updateBooking = async (id: GridRowId, updatedRow: GridRowModel) => {
   if (!response.ok) throw new Error('Failed to update booking');
   return response.json();
 };
+
+//========================================= delete booking function =========================================
+
+const deleteBooking = async (id: number) => {
+  const response = await fetch(`${api}delete-booking/${id}`, {
+    method: 'DELETE',
+  });
+  if (!response.ok) throw new Error('Failed to delete booking');
+  return response.json();
+}
 
 //========================================= the real stuff =========================================
 
@@ -52,14 +60,13 @@ export default function BookingsTable() {
       });
   }, []);
 
-
-//====================== handle loading, error, and empty state ======================
+  //====================== handle loading, error, and empty state ======================
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
   if (rows.length === 0) return <div>No bookings found.</div>;
 
-//====================== render bookings table ======================
+  //====================== render bookings table ======================
 
   const columns: GridColDef[] = [
     { field: 'id', headerName: 'Booking ID', width: 80 },
@@ -74,14 +81,14 @@ export default function BookingsTable() {
       width: 120,
       editable: false,
       type: 'singleSelect',
-      valueOptions: 
-      [
-        { value: 'Standard', label: 'Standard' },
-        { value: 'Deluxe', label: 'Deluxe' },
-        { value: 'Suite', label: 'Suite' },
-        { value: 'Family', label: 'Family' },
-        { value: 'Presidential', label: 'Presidential' },
-      ]
+      valueOptions:
+        [
+          { value: 'Standard', label: 'Standard' },
+          { value: 'Deluxe', label: 'Deluxe' },
+          { value: 'Suite', label: 'Suite' },
+          { value: 'Family', label: 'Family' },
+          { value: 'Presidential', label: 'Presidential' },
+        ]
     },
     {
       field: 'status',
@@ -90,27 +97,29 @@ export default function BookingsTable() {
       editable: true,
       type: 'singleSelect',
       valueOptions:
-      [
-        { value: 'paid', label: 'paid' },
-        // { value: 'partially paid', label: 'partially paid' }, // hotel policy is to pay fully before checking in
-        { value: 'not paid', label: 'not paid' },
-        { value: 'cancelled', label: 'cancelled' },
-        { value: 'checked in', label: 'checked in' },
-        { value: 'checked out', label: 'checked out' },
-      ]
+        [
+          { value: 'paid', label: 'paid' },
+          // { value: 'partially paid', label: 'partially paid' }, // hotel policy is to pay fully before checking in
+          { value: 'not paid', label: 'not paid' },
+          { value: 'cancelled', label: 'cancelled' },
+          { value: 'checked in', label: 'checked in' },
+          { value: 'checked out', label: 'checked out' },
+        ]
     },
     { field: 'email', headerName: 'Email', width: 180, editable: true },
     { field: 'phone', headerName: 'Phone', width: 140, editable: true },
     { field: 'start_date', headerName: 'Start Date', width: 110, editable: false },
     { field: 'end_date', headerName: 'End Date', width: 110, editable: false },
-    { field: 'price', headerName: 'Price', width: 100, editable: false, type: 'number', align: 'center', headerAlign: 'center',
-      valueFormatter: (params: number) => `£${Number(params).toFixed(2)}` },
+    {
+      field: 'price', headerName: 'Price', width: 100, editable: false, type: 'number', align: 'center', headerAlign: 'center',
+      valueFormatter: (params: number) => `£${Number(params).toFixed(2)}`
+    },
   ];
 
-//====================== render the DataGrid ======================
+  //====================== render the DataGrid ======================
 
   return (
-  <div style={{ height: '100%', width: '100%', padding: 16 }}>
+    <div style={{ height: '100%', width: '100%', padding: 16 }}>
       <DataGrid
         rows={rows}
         columns={columns}
@@ -119,11 +128,38 @@ export default function BookingsTable() {
         onPaginationModelChange={setPaginationModel}
         pageSizeOptions={[10, 25, 100]}
         disableRowSelectionOnClick
+        onCellClick={(params, event) => {
+          if (params.field === 'id') {
+            event.defaultMuiPrevented = true;
+          }
+        }}
+
+        // delete booking on delete key press (best thing i could come up with...)
+        onCellKeyDown={async (params, event) => {
+          if (
+            params.field === 'id' &&
+            event.key === 'Delete'
+          ) {
+            event.preventDefault();
+            if (window.confirm(`Delete booking with ID ${params.value}?`)) {
+              try {
+                await deleteBooking(Number(params.value));
+                setRows((prevRows) => prevRows.filter((row) => row.id !== params.value));
+                alert('Booking deleted!');
+              } catch (err) {
+                alert('Failed to delete booking');
+              }
+            }
+          }
+        }}
+
+        // thus is to edit the booking
         onCellEditStop={(params: any, event: any) => {
           if (params.reason === 'cellFocusOut') {
             event.defaultMuiPrevented = true;
           }
         }}
+
         processRowUpdate={async (newRow, oldRow) => {
           if (!newRow.id) {
             return newRow;
@@ -149,8 +185,16 @@ export default function BookingsTable() {
             start_date: newRow.start_date,
             end_date: newRow.end_date,
             booking_time: currentTime,
-            price: calculatePrice(newRow.room_type, Number(newRow.number_of_adults), Number(newRow.number_of_children), Number(newRow.number_of_rooms)),
+            price: calculatePrice(
+              newRow.room_type,
+              Number(newRow.number_of_adults),
+              Number(newRow.number_of_children),
+              Number(newRow.number_of_rooms),
+              newRow.start_date,
+              newRow.end_date
+            ),
           };
+
           //===================================
           try {
             await updateBooking(newRow.id, payload); // can we update the booking with the new data?
@@ -161,7 +205,8 @@ export default function BookingsTable() {
             alert('Failed to update booking'); // you messed up like you messed your life up..
             return oldRow; // show older data
           }
-        }}
+        }
+        }
       />
     </div>
   );

@@ -60,7 +60,14 @@ export default function CreateBooking() {
       number_of_adults: Number(form.number_of_adults),
       number_of_children: Number(form.number_of_children),
       number_of_rooms: Number(form.number_of_rooms),
-      price: calculatePrice(form.room_type, Number(form.number_of_adults), Number(form.number_of_children), Number(form.number_of_rooms)),
+      price: calculatePrice(
+        form.room_type,
+        Number(form.number_of_adults),
+        Number(form.number_of_children),
+        Number(form.number_of_rooms),
+        form.start_date,
+        form.end_date
+      ),
       booking_time,
     };
     try {
@@ -83,8 +90,18 @@ export default function CreateBooking() {
     }
   };
 
+  // Calculate price based on current form values
+  const calculatedPrice = calculatePrice(
+    form.room_type,
+    Number(form.number_of_adults),
+    Number(form.number_of_children),
+    Number(form.number_of_rooms),
+    form.start_date,
+    form.end_date
+  );
+
   return (
-    <form className="create-booking-form" onSubmit={handleSubmit} style={{ maxWidth: 500, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 16 }}>
+    <form className="create-booking-form" onSubmit={handleSubmit}>
       <TextField label="First Name" name="first_name" value={form.first_name} onChange={handleInputChange} required />
       <TextField label="Last Name" name="last_name" value={form.last_name} onChange={handleInputChange} required />
       <TextField label="Adults" name="number_of_adults" type="number" value={form.number_of_adults} onChange={handleInputChange} required />
@@ -96,6 +113,7 @@ export default function CreateBooking() {
           {roomTypes.map((type) => <MenuItem key={type} value={type}>{type}</MenuItem>)}
         </Select>
       </FormControl>
+      <TextField label="Phone" name="phone" value={form.phone} onChange={handleInputChange} required />
       <FormControl required>
         <InputLabel>Status</InputLabel>
         <Select name="status" value={form.status} onChange={handleSelectChange} label="Status">
@@ -103,11 +121,10 @@ export default function CreateBooking() {
         </Select>
       </FormControl>
       <TextField label="Email" name="email" value={form.email} onChange={handleInputChange} required />
-      <TextField label="Phone" name="phone" value={form.phone} onChange={handleInputChange} required />
+      <TextField label="Price" value={calculatedPrice} InputProps={{ readOnly: true }} />
       <TextField label="Start Date" name="start_date" type="date" value={form.start_date} onChange={handleInputChange} required InputLabelProps={{ shrink: true }} />
       <TextField label="End Date" name="end_date" type="date" value={form.end_date} onChange={handleInputChange} required InputLabelProps={{ shrink: true }} />
-      <TextField label="Price" value={calculatePrice(form.room_type, Number(form.number_of_adults), Number(form.number_of_children), Number(form.number_of_rooms))} InputProps={{ readOnly: true }} />
-      <Button type="submit" variant="contained" color="primary" disabled={loading}>{loading ? 'Creating...' : 'Create Booking'}</Button>
+      <Button type="submit" variant="contained" color="primary" disabled={loading} className="form-full">{loading ? 'Creating...' : 'Create Booking'}</Button>
       {error && <div style={{ color: 'red' }}>{error}</div>}
       {success && <div style={{ color: 'green' }}>{success}</div>}
     </form>

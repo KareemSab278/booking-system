@@ -1,9 +1,11 @@
 .create-booking-form {
-  max-width: 500px;
+  width: 100%;
+  min-width: 600px;
+  /* max-width: 200%; */
   margin: 40px auto;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px 32px;
   background: #181c23;
   padding: 32px 24px;
   border-radius: 12px;
@@ -28,6 +30,7 @@
 
 .create-booking-form .MuiButton-root {
   margin-top: 12px;
+  grid-column: 1 / -1;
 }
 
 .create-booking-form .Mui-disabled {
@@ -44,4 +47,8 @@
 
 .create-booking-form .MuiFormHelperText-root {
   color: #ff5252;
+}
+
+.create-booking-form .form-full {
+  grid-column: 1 / -1;
 }
