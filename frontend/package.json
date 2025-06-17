@@ -3,7 +3,6 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://KareemSab278.github.io/booking-system",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
