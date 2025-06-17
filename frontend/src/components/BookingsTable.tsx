@@ -6,7 +6,8 @@ import { calculatePrice } from '../utils/price';
 
 //========================================= API endpoint =========================================
 
-const api = 'http://127.0.0.1:5000/';
+// const api = 'http://127.0.0.1:5000/';
+const api = 'https://booking-system-zvr3.onrender.com/'
 
 //========================================= fetch bookings function =========================================
 

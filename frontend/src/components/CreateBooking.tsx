@@ -6,7 +6,9 @@ import '../styles/CreateBooking.css';
 import { calculatePrice } from '../utils/price';
 
 
-const api = 'http://127.0.0.1:5000/booking';
+// const api = 'http://127.0.0.1:5000/booking';
+const api = 'https://booking-system-zvr3.onrender.com/booking';
+
 
 const roomTypes = [
   'Standard', 'Deluxe', 'Suite', 'Family', 'Presidential'
