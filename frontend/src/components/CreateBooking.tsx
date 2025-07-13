@@ -46,7 +46,6 @@ export default function CreateBooking() {
     setForm((prev) => ({ ...prev, [name!]: value }));
   };
 
-
   const handleSubmit = async (e: React.FormEvent) => {
     
     e.preventDefault();

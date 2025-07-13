@@ -1,9 +1,8 @@
 from flask import Flask, jsonify, request, redirect, session, url_for
 from flask_cors import CORS
+import re
 import sqlite3
 import os
-
-
 
 #=============================================================
 
@@ -71,6 +70,20 @@ def create_booking():
     #=====
     if data.get('price') is None or not isinstance(data['price'], (int, float)):
         return jsonify({"error": "Price must be a number!"}), 400
+    
+    name_regex = r"^[a-zA-Z' -]+$"
+    email_regex = r'^[^@]+@[^@]+\.[^@]+$'
+
+    if not re.fullmatch(name_regex, data['first_name']):
+        return jsonify({'error': "Invalid characters in first name"}), 400
+
+    if not re.fullmatch(name_regex, data['last_name']):
+        return jsonify({'error': "Invalid characters in last name"}), 400
+
+    if not re.fullmatch(email_regex, data['email']):
+        return jsonify({'error': "Invalid email format"}), 400
+
+
     
     #============== Validation end =================
     
